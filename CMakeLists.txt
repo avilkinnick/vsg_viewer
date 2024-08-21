@@ -11,9 +11,11 @@ add_subdirectory(dependencies/vsgImGui)
 add_executable(vsg_viewer src/main.cpp
     include/Application.h
     include/GUI.h
+    include/RouteLoader.h
 
     src/Application.cpp
     src/GUI.cpp
+    src/RouteLoader.cpp
 )
 
 target_include_directories(vsg_viewer PRIVATE include)

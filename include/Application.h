@@ -1,12 +1,16 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <thread>
+
 #include <vsg/all.h>
 #include <vsgImGui/RenderImGui.h>
 
 class Application
 {
 public:
+    ~Application();
+
     void initialize();
     void run();
 
@@ -38,6 +42,8 @@ private:
     vsg::ref_ptr<vsg::RenderGraph> render_graph;
     vsg::ref_ptr<vsg::View> view;
     vsg::ref_ptr<vsgImGui::RenderImGui> render_im_gui;
+
+    std::thread load_route_thread;
 };
 
 #endif // APPLICATION_H

@@ -6,6 +6,12 @@
 #include <vsgImGui/SendEventsToImGui.h>
 
 #include "GUI.h"
+#include "RouteLoader.h"
+
+Application::~Application()
+{
+    load_route_thread.detach();
+}
 
 void Application::initialize()
 {
@@ -22,6 +28,8 @@ void Application::initialize()
     create_render_im_gui();
 
     initialize_viewer();
+
+    load_route_thread = std::thread(&RouteLoader::load, "../../routes/rostov-kavkazskaya");
 }
 
 void Application::run()
@@ -48,8 +56,8 @@ void Application::create_window_traits()
 {
     window_traits = vsg::WindowTraits::create();
     window_traits->windowTitle = "vsg_viewer";
-    // window_traits->debugLayer = true;
-    // window_traits->apiDumpLayer = true;
+    window_traits->debugLayer = true;
+    window_traits->fullscreen = true;
 }
 
 void Application::create_scene()
@@ -78,7 +86,7 @@ void Application::create_look_at()
     vsg::ComputeBounds compute_bounds;
     scene->accept(compute_bounds);
 
-    vsg::dvec3 center = (compute_bounds.bounds.min + compute_bounds.bounds.max) * 0.5;
+    const vsg::dvec3 center = (compute_bounds.bounds.min + compute_bounds.bounds.max) * 0.5;
     radius = vsg::length(compute_bounds.bounds.max - compute_bounds.bounds.min) * 0.6;
 
     look_at = vsg::LookAt::create(center + vsg::dvec3(0.0, -radius * 3.5, 0.0), center, vsg::dvec3(0.0, 0.0, 1.0));
@@ -86,7 +94,7 @@ void Application::create_look_at()
 
 void Application::create_camera()
 {
-    double near_far_ratio = 0.01;
+    constexpr double near_far_ratio = 0.01;
 
     auto perspective = vsg::Perspective::create(30.0, static_cast<double>(window->extent2D().width) / static_cast<double>(window->extent2D().height), near_far_ratio * radius, radius * 400.5);
 
@@ -116,7 +124,7 @@ void Application::create_view()
 
 void Application::create_render_im_gui()
 {
-    render_im_gui = vsgImGui::RenderImGui::create(window, GUI::create());
+    render_im_gui = vsgImGui::RenderImGui::create(window, GUI::create(window->getPhysicalDevice()));
 
     render_graph->addChild(render_im_gui);
 }
