@@ -100,7 +100,7 @@ void GUI::render_debug_window() const
 void GUI::render_loader_window() const
 {
     ImGui::SetNextWindowPos(ImVec2(5.0f, 140.0f));
-    ImGui::SetNextWindowSize(ImVec2(1800.0f, 1295.0f));
+    ImGui::SetNextWindowSize(ImVec2(1800.0f, 935.0f));
 
     ImGui::Begin("Loader");
 
@@ -230,74 +230,167 @@ void GUI::render_unique_texture_paths() const
 void GUI::render_model_pairs() const
 {
     const std::size_t model_pairs_size = model_pairs.size();
-    const std::string header = "model_pairs[" + std::to_string(model_pairs_size) + "]###model_pairs";
+    std::string header = "model_pairs[" + std::to_string(model_pairs_size) + "]###model_pairs";
 
     if (ImGui::CollapsingHeader(header.c_str()))
     {
-        if (ImGui::BeginTable("model_pairs", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_ScrollY))
+        ImGui::Indent();
+
+        for (std::size_t i = 0; i < model_pairs_size; ++i)
         {
-            ImGui::TableSetupScrollFreeze(1, 1);
-            ImGui::TableSetupColumn("index");
-            ImGui::TableSetupColumn("model_path");
-            ImGui::TableSetupColumn("model");
-            ImGui::TableHeadersRow();
+            const model_pair_t& model_pair = model_pairs[i];
+            const std::string index_string = std::to_string(i);
 
-            for (std::size_t row_1 = 0; row_1 < model_pairs_size; ++row_1)
+            header = "[" + index_string + "] " + model_pair.path + "###model" + index_string;
+            if (ImGui::CollapsingHeader(header.c_str()))
             {
-                const model_pair_t& model_pair = model_pairs[row_1];
-                const model_t& model = model_pair.model;
+                const auto& vertices = model_pair.model.vertices;
+                const auto& indices = model_pair.model.indices;
 
-                ImGui::TableNextRow();
+                ImGui::Indent();
 
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%zu", row_1);
-
-                ImGui::TableSetColumnIndex(1);
-                ImGui::TextUnformatted(model_pair.path.c_str());
-
-                ImGui::TableSetColumnIndex(2);
-                std::string label = "model##model" + std::to_string(row_1);
-                if (ImGui::CollapsingHeader(label.c_str()))
+                header = "vertices[" + std::to_string(vertices.size()) + "]###vertices" + index_string;
+                if (ImGui::CollapsingHeader(header.c_str()))
                 {
-                    const auto& vertices = model.vertices;
-
-                    ImGui::Indent();
-
-                    label = "vertices[" + std::to_string(vertices.size()) + "]###model" + std::to_string(row_1) + "vertices";
-                    if (ImGui::CollapsingHeader(label.c_str()))
+                    if (ImGui::BeginTable(header.c_str(), 9, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_ScrollY))
                     {
-                        if (ImGui::BeginTable(label.c_str(), 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_ScrollY))
+                        ImGui::TableSetupScrollFreeze(1, 1);
+                        ImGui::TableSetupColumn("index");
+                        ImGui::TableSetupColumn("pos_x");
+                        ImGui::TableSetupColumn("pos_y");
+                        ImGui::TableSetupColumn("pos_z");
+                        ImGui::TableSetupColumn("normal_x");
+                        ImGui::TableSetupColumn("normal_y");
+                        ImGui::TableSetupColumn("normal_z");
+                        ImGui::TableSetupColumn("tex_coord_x");
+                        ImGui::TableSetupColumn("tex_coord_y");
+                        ImGui::TableHeadersRow();
+
+                        for (std::size_t row = 0; row < vertices.size(); ++row)
                         {
-                            ImGui::TableSetupScrollFreeze(1, 1);
-                            ImGui::TableSetupColumn("index");
-                            ImGui::TableSetupColumn("pos");
-                            ImGui::TableSetupColumn("normal");
-                            ImGui::TableSetupColumn("tex_coord");
-                            ImGui::TableHeadersRow();
+                            const vsg::vec3& pos = vertices[row].pos;
+                            const vsg::vec3& normal = vertices[row].normal;
+                            const vsg::vec2& tex_coord = vertices[row].tex_coord;
 
-                            for (std::size_t row_2 = 0; row_2 < vertices.size(); ++row_2)
-                            {
-                                ImGui::TableNextRow();
+                            const ImU32 pos_cell_bg_color = ImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 0.4f));
+                            const ImU32 normal_cell_bg_color = ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 0.0f, 0.4f));
+                            const ImU32 tex_coord_cell_bg_color = ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 1.0f, 0.4f));
 
-                                ImGui::TableSetColumnIndex(0);
-                                label = std::to_string(row_2);
-                                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+                            ImGui::TableNextRow();
 
-                                ImGui::TableSetColumnIndex(1);
-                                ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
+                            ImGui::TableSetColumnIndex(0);
+                            const std::string label = std::to_string(row);
+                            ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
 
-                                ImGui::TableSetColumnIndex(2);
-                                ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
+                            ImGui::TableSetColumnIndex(1);
+                            ImGui::Text("%.3f", pos.x);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pos_cell_bg_color);
 
-                                ImGui::TableSetColumnIndex(3);
-                                ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
-                            }
-                            ImGui::EndTable();
+                            ImGui::TableSetColumnIndex(2);
+                            ImGui::Text("%.3f", pos.y);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pos_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(3);
+                            ImGui::Text("%.3f", pos.z);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pos_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(4);
+                            ImGui::Text("%.3f", normal.x);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, normal_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(5);
+                            ImGui::Text("%.3f", normal.y);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, normal_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(6);
+                            ImGui::Text("%.3f", normal.z);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, normal_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(7);
+                            ImGui::Text("%.3f", tex_coord.x);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, tex_coord_cell_bg_color);
+
+                            ImGui::TableSetColumnIndex(8);
+                            ImGui::Text("%.3f", tex_coord.y);
+                            ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, tex_coord_cell_bg_color);
                         }
+                        ImGui::EndTable();
                     }
                 }
+
+                header = "indices###indices" + index_string;
+                if (ImGui::CollapsingHeader(header.c_str()))
+                {
+
+                }
+
+                ImGui::Unindent();
             }
-            ImGui::EndTable();
         }
+        // if (ImGui::BeginTable("model_pairs", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_ScrollY))
+        // {
+        //     ImGui::TableSetupScrollFreeze(1, 1);
+        //     ImGui::TableSetupColumn("index");
+        //     ImGui::TableSetupColumn("model_path");
+        //     ImGui::TableSetupColumn("model");
+        //     ImGui::TableHeadersRow();
+
+        //     for (std::size_t row_1 = 0; row_1 < model_pairs_size; ++row_1)
+        //     {
+        //         const model_pair_t& model_pair = model_pairs[row_1];
+        //         const model_t& model = model_pair.model;
+
+        //         ImGui::TableNextRow();
+
+        //         ImGui::TableSetColumnIndex(0);
+        //         ImGui::Text("%zu", row_1);
+
+        //         ImGui::TableSetColumnIndex(1);
+        //         ImGui::TextUnformatted(model_pair.path.c_str());
+
+        //         ImGui::TableSetColumnIndex(2);
+        //         std::string label = "model##model" + std::to_string(row_1);
+        //         if (ImGui::CollapsingHeader(label.c_str()))
+        //         {
+        //             const auto& vertices = model.vertices;
+
+        //             ImGui::Indent();
+
+        //             label = "vertices[" + std::to_string(vertices.size()) + "]###model" + std::to_string(row_1) + "vertices";
+        //             if (ImGui::CollapsingHeader(label.c_str()))
+        //             {
+        //                 if (ImGui::BeginTable(label.c_str(), 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_HighlightHoveredColumn | ImGuiTableFlags_ScrollY))
+        //                 {
+        //                     ImGui::TableSetupScrollFreeze(1, 1);
+        //                     ImGui::TableSetupColumn("index");
+        //                     ImGui::TableSetupColumn("pos");
+        //                     ImGui::TableSetupColumn("normal");
+        //                     ImGui::TableSetupColumn("tex_coord");
+        //                     ImGui::TableHeadersRow();
+
+        //                     for (std::size_t row_2 = 0; row_2 < vertices.size(); ++row_2)
+        //                     {
+        //                         ImGui::TableNextRow();
+
+        //                         ImGui::TableSetColumnIndex(0);
+        //                         label = std::to_string(row_2);
+        //                         ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
+
+        //                         ImGui::TableSetColumnIndex(1);
+        //                         ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
+
+        //                         ImGui::TableSetColumnIndex(2);
+        //                         ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
+
+        //                         ImGui::TableSetColumnIndex(3);
+        //                         ImGui::Text("%.3f %.3f %.3f", vertices[row_2].pos.x, vertices[row_2].pos.y, vertices[row_2].pos.z);
+        //                     }
+        //                     ImGui::EndTable();
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     ImGui::EndTable();
+        // }
     }
 }

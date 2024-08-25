@@ -1,9 +1,9 @@
 [submodule "dependencies/VulkanSceneGraph"]
 	path = dependencies/VulkanSceneGraph
-	url = https://github.com/vsg-dev/VulkanSceneGraph.git
+	url = git@github.com:vsg-dev/VulkanSceneGraph.git
 [submodule "dependencies/vsgXchange"]
 	path = dependencies/vsgXchange
-	url = https://github.com/vsg-dev/vsgXchange.git
+	url = git@github.com:vsg-dev/vsgXchange.git
 [submodule "dependencies/vsgImGui"]
 	path = dependencies/vsgImGui
-	url = https://github.com/vsg-dev/vsgImGui.git
+	url = git@github.com:vsg-dev/vsgImGui.git

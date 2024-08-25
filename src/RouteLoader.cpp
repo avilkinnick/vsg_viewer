@@ -43,11 +43,6 @@ void RouteLoader::load_objects_ref(const std::string& route_path)
     {
         const std::string& current_buffer = buffers[current_buffer_index];
 
-        if (current_buffer[0] == '3' && current_buffer[1] == '3')
-        {
-            int a = 10;
-        }
-
         if (current_buffer == "[mipmap]")
         {
             mipmap = true;
@@ -69,7 +64,7 @@ void RouteLoader::load_objects_ref(const std::string& route_path)
         {
         case 0:
         {
-            if (current_buffer[0] != '/')
+            if (current_buffer[0] != '/' && current_buffer[0] != '\\')
             {
                 ++current_buffer_index;
             }
@@ -77,7 +72,7 @@ void RouteLoader::load_objects_ref(const std::string& route_path)
         }
         case 1:
         {
-            if (current_buffer[0] == '/')
+            if (current_buffer[0] == '/' || current_buffer[0] == '\\')
             {
                 ++current_buffer_index;
             }
@@ -89,7 +84,7 @@ void RouteLoader::load_objects_ref(const std::string& route_path)
         }
         case 2:
         {
-            if (current_buffer[0] == '/')
+            if (current_buffer[0] == '/'|| current_buffer[0] == '\\')
             {
                 object_refs.emplace_back(object_ref_t{buffers[0], buffers[1], buffers[2], mipmap, smooth});
                 unique_model_paths.insert(buffers[1]);
